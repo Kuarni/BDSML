@@ -2,12 +2,24 @@ open Utils
 open Angstrom
 open Const_parser
 open Ast
+open Typexpr_parser
 
-let parse_any = check_char '_' *> return Pat_any
-let parse_pconst = parse_const >>| fun c -> Pat_constant c
+let parse_pconst =
+  let+ c = parse_const in
+  Pat_constant c
+;;
+
+let parse_pvar =
+  parse_ident_name
+  >>| function
+  | "_" -> Pat_any
+  | _ as s -> Pat_var s
+;;
+
+let parse_pbase = choice [ parse_pvar; parse_pconst ]
 
 let parse_ptuple p =
-  sep_by (check_char ',') (parse_pconst <|> parse_any <|> p)
+  sep_by (check_char ',') (parse_pbase <|> p)
   >>= function
   | [] -> fail "It cannot be this way"
   | [ h ] -> return h
@@ -42,4 +54,11 @@ let parse_plist p =
   <|> parse_por p
 ;;
 
-let parse_pattern = fix @@ fun p -> remove_parents (parse_plist p) <|> parse_plist p
+let parse_ptype p =
+  let* pt = parse_plist p in
+  (let+ t = parse_typexpr in
+   Pat_type (pt, t))
+  <|> return pt
+;;
+
+let parse_pattern = fix @@ fun p -> remove_parents (parse_ptype p) <|> parse_ptype p

@@ -153,7 +153,8 @@ let%expect_test "or test" =
 
 let%expect_test "or inside of list test" =
   test_pattern "[1|2; 3]";
-  [%expect {|
+  [%expect
+    {|
     (Pat_construct ("::",
        (Some (Pat_tuple
                 [(Pat_or ((Pat_constant (Const_int 1)),
@@ -165,5 +166,56 @@ let%expect_test "or inside of list test" =
                      ))
                   ]))
        ))
+    |}]
+;;
+
+let%expect_test "type any test" =
+  test_pattern "_:int";
+  [%expect {| (Pat_type (Pat_any, (Type_single "int"))) |}]
+;;
+
+let%expect_test "type var test" =
+  test_pattern "a:int";
+  [%expect {| (Pat_type ((Pat_var "a"), (Type_single "int"))) |}]
+;;
+
+let%expect_test "type tuple test" =
+  test_pattern "(1, 2, 3, 4:int)";
+  [%expect
+    {|
+    (Pat_type (
+       (Pat_tuple
+          [(Pat_constant (Const_int 1)); (Pat_constant (Const_int 2));
+            (Pat_constant (Const_int 3)); (Pat_constant (Const_int 4))]),
+       (Type_single "int")))
+    |}]
+;;
+
+let%expect_test "type list test" =
+  test_pattern "[1;2]:int";
+  [%expect
+    {|
+    (Pat_type (
+       (Pat_construct ("::",
+          (Some (Pat_tuple
+                   [(Pat_constant (Const_int 1));
+                     (Pat_construct ("::",
+                        (Some (Pat_tuple
+                                 [(Pat_constant (Const_int 2));
+                                   (Pat_construct ("[]", None))]))
+                        ))
+                     ]))
+          )),
+       (Type_single "int")))
+    |}]
+;;
+
+let%expect_test "type or test" =
+  test_pattern "1|2:int";
+  [%expect
+    {|
+    (Pat_type (
+       (Pat_or ((Pat_constant (Const_int 1)), (Pat_constant (Const_int 2)))),
+       (Type_single "int")))
     |}]
 ;;
