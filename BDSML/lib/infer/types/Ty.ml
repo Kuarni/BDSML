@@ -18,6 +18,8 @@ module Ty : sig
   val char : t
   val string : t
   val vars : t -> VarSet.t
+  val equal : t -> t -> bool
+  val compare : t -> t -> int
 end = struct
   type t =
     | Ty_var of Var.t
