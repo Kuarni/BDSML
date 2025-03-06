@@ -335,8 +335,7 @@ let%expect_test "test op not" =
 
 let%expect_test "test equal" =
   test {|(=)|};
-  [%expect {|
-    'e -> 'e -> bool |}]
+  [%expect {| 'h -> 'h -> bool |}]
 ;;
 
 let%expect_test "test less" =
@@ -377,7 +376,7 @@ let%expect_test "test poly inference" =
     f 'a' 'b';;
   |};
   [%expect {|
-    val f : 'g -> 'h -> ('g * 'h)
+    val f : 'h -> 'i -> ('h * 'i)
     (int * int)
     (char * char)
     |}]
