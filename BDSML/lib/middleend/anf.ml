@@ -6,7 +6,7 @@ open Reduced_ast
 open Anf_ast
 open Middleend_utils.Monads
 
-let fresh_var = fresh >>| Int.to_string >>| ( ^ ) "__anf_"
+let fresh_var = fresh >>| Int.to_string >>| ( ^ ) "__anf"
 let invalid_prev res = Invalid_previous_result ("anf", res)
 let atom a = CExp_atom a
 let complex c = LComplex c
@@ -59,11 +59,10 @@ and rexp_to_cexp : rexpr -> (let_part list * cexpr) t = function
     in
     let* f, args = helper [] exp in
     let+ data =
-      map
-        (fun el ->
-          let+ lexp, exp = rexp_to_aexp el in
-          lexp, exp)
-        args
+      map (fun el ->
+        let+ lexp, exp = rexp_to_aexp el in
+        lexp, exp)
+      @@ List.rev args
     in
     let lexps, args = List.split data in
     let lexps = List.flatten lexps in
@@ -80,19 +79,19 @@ and rexp_to_cexp : rexpr -> (let_part list * cexpr) t = function
   | RExp_let (name, exp1, exp2) ->
     let+ lexps1, cexp = rexp_to_cexp exp1
     and+ lexps2, cexp2 = rexp_to_cexp exp2 in
-    lexps1 @ [ name, cexp ] @ lexps2, cexp2
+    lexps1 @ lexps2 @ [ name, cexp ], cexp2
   | RExp_let_rec _ -> fail @@ invalid_prev "unexpected \"let rec in\" after ll"
   | RExp_fun _ -> fail @@ invalid_prev "unexpected \"fun\" after ll"
 
 and rexp_to_lexp rexp : lexpr t =
   let+ lexps, cexp = rexp_to_cexp rexp in
-  List.fold_right (fun (name, v) lexp -> let_in name v lexp) lexps (complex cexp)
+  List.fold_left (fun lexp (name, v) -> let_in name v lexp) (complex cexp) lexps
 ;;
 
 let struct_to_anf = function
   | RStr_eval e ->
     let+ lexp = rexp_to_lexp e in
-    AbsStr_value (Utils.Predefined_ops.var_nothing, lexp)
+    AbsStr_eval lexp
   | RStr_value (name, RExp_fun (args, rexp)) ->
     let+ lexp = rexp_to_lexp rexp in
     AbsStr_func (name, args, lexp)
@@ -107,7 +106,7 @@ let struct_to_anf = function
           | RExp_fun (args, rexp) ->
             let+ lexp = rexp_to_lexp rexp in
             name, args, lexp
-          | _ -> fail @@ invalid_prev "BDSML doesn't support vars in \"let rec in\"")
+          | _ -> fail @@ invalid_prev "BDSML doesn't support vars in let rec in")
         rexps
     in
     AbsStr_value_rec funs
