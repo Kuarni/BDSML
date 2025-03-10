@@ -22,7 +22,8 @@
    ((__op_plus __var_y0) __var_z)));;
   let __var_f = (fun __reserved_0 -> (let __var_x = __reserved_0 in 
    (let __var_y = ((__op_plus __var_x) 1) in 
-   (lifted_0 __var_y))));;
+   (lifted_1 __var_y))));;
+  let __var_f = lifted_0;;
 
   $ ./run_lambda_lifting.exe <<- EOF
   > let a = 4;;
@@ -30,24 +31,6 @@
   > let f b = a + b;;
   let __var_a = 4;;
   let __var_b = 5;;
-  let __var_f = (fun __reserved_0 -> (let __var_b0 = __reserved_0 in 
+  let lifted_0 = (fun __reserved_0 -> (let __var_b0 = __reserved_0 in 
    ((__op_plus __var_a) __var_b0)));;
-Test let with let rec in
-  $ ./run_lambda_lifting.exe <<- EOF
-  > let length_tail =
-  > let rec helper acc xs =
-  > match xs with
-  > | [] -> acc
-  > | h::tl -> helper (acc + 1) tl
-  > in
-  > helper 0
-  let lifted_0 = (fun __var_helper0 __reserved_0 __reserved_1 -> (let __var_acc = __reserved_0 in 
-   (let __var_xs = __reserved_1 in 
-   (let __reserved_2 = __var_xs in 
-   (if ((__same_cons __reserved_2) "[]") then (let __nothing = ((__same_cons __reserved_2) (([]))) in 
-   __var_acc) else (if ((__op_and (((__same_cons __reserved_2) "::"))) (((__op_and (((__op_and true) true))) true))) then (let __reserved_3 = ((__disassemble "::") __reserved_2) in 
-   (let __var_h = ((__get_from_tuple __reserved_3) 0) in 
-   (let __var_tl = ((__get_from_tuple __reserved_3) 1) in 
-   ((__var_helper0 (((__op_plus __var_acc) 1))) __var_tl)))) else (__exception "Match_failure")))))));;
-  let rec lifted_1 = (lifted_0 __var_helper);;
-  let __var_length_tail = (lifted_1 0);;
+  let __var_f = lifted_0;;
