@@ -1,4 +1,0 @@
-(executable
- (public_name MEML)
- (name main)
- (libraries MEML.Lib))

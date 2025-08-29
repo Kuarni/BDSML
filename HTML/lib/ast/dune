@@ -1,8 +1,0 @@
-(library
- (name AstLib)
- (modules Ast Pp_ast Pp_utils)
- (libraries base)
- (preprocess
-  (pps ppx_deriving.show ppx_deriving.eq))
- (instrumentation
-  (backend bisect_ppx)))

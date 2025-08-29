@@ -1,6 +1,0 @@
-(library
- (name LParse)
- (public_name neml.Parse)
- (libraries base angstrom LMisc LAst)
- (instrumentation
-  (backend bisect_ppx)))

@@ -1,5 +1,0 @@
-(library
- (name stdlib_funs)
- (public_name BasedML.Stdlib_Funs)
- (modules stdlib_funs)
- (libraries ast))

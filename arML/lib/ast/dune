@@ -1,8 +1,0 @@
-(library
- (name ast)
- (public_name arML.ast)
- (modules AbstractSyntaxTree Pprint)
- (preprocess
-  (pps ppx_deriving.show))
- (instrumentation
-  (backend bisect_ppx)))
